@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "cors-anywhere": "^0.4.4",
+    "node-html-parser": "^6.1.11"
+  }
+}
