@@ -1,7 +1,7 @@
 const http = require("http")
 const htmlParser = require("node-html-parser")
 
-const url = "localhost" // "192.168.0.13"
+const url = "192.168.0.13"
 
 const errorCodes = {
     unknownInternal: "err:unknown-internal",
@@ -120,8 +120,8 @@ const server = http.createServer(async (req, res) => {
 
 function run()
 {
-    server.listen(8080, url, () => {
-        console.log(`Server is listening at port 8080`)
+    server.listen(80, url, () => {
+        console.log(`Server is listening at port 80`)
     })
 }
 
