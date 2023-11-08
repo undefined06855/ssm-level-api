@@ -1,20 +1,31 @@
 const http = require("http")
-const htmlParser = require('node-html-parser')
+const htmlParser = require("node-html-parser")
 
 const url = "localhost" // "192.168.0.13"
+
+const errorCodes = {
+    unknownInternal: "err:unknown-internal",
+
+    idInvalidRegex: "err:lvl-id-invalid-regex",
+    idInvalidFetched: "err:lvl-id-invalid-fetched",
+
+    listInvalidRegex: "err:list-id-invalid-regex",
+    listInvalidFetched: "err:list-id-invalid-fetched"
+}
+
+const levelIdRegex = /^\d\d\d\d-\d\d\d\d$/m
 
 const server = http.createServer(async (req, res) => {
     let url = req.url
 
     try
     {
-        if (url.startsWith("/get"))
+        if (url.startsWith("/level/"))
         {
-
-            let levelId = url.replace("/get/", "")
-            if (!levelId.match(/\d\d\d\d-\d\d\d\d/)) // such a silly regex
+            let levelId = url.replace("/level/", "")
+            if (!levelId.match(levelIdRegex)) // such a silly regex
             {
-                serverEndRequest(res, "err:lvl-id-invalid-regex")
+                serverEndRequest(res, errorCodes.idInvalidRegex)
                 return
             }
     
@@ -24,7 +35,7 @@ const server = http.createServer(async (req, res) => {
     
             if (document.querySelector("title").innerText == "Wrong Url | Super Spark Maker")
             {
-                serverEndRequest(res, "err:lvl-id-invalid-fetched")
+                serverEndRequest(res, errorCodes.idInvalidFetched)
                 return
             }
 
@@ -34,7 +45,6 @@ const server = http.createServer(async (req, res) => {
             let title = document.querySelector("title").innerText
             let $name = title.split(" - by ")[0]
             let $creator = title.split(" - by ")[1]
-
             let $description = document.querySelector("textarea").innerHTML
 
             let scriptTag = document.querySelector(".gameWrap").querySelector("script")
@@ -61,10 +71,44 @@ const server = http.createServer(async (req, res) => {
             }))
             return
         }
+        else if (url.startsWith("/levels/"))
+        {
+            let levelListType = url.replace("/levels", "")
+            if (levelListType == "/newest") levelListType = "/"
+
+            let levelListTypes = [
+                "/",
+                "/plays",
+                "/likes",
+                "/hardest",
+                "/easiest"
+            ]
+
+            if (!levelListTypes.includes(levelListType))
+            {
+                serverEndRequest(res, )
+                return
+            }
+
+            let document = htmlParser.parse(await corsFetch("https://www.supersparkmaker.com/levels" + levelListType))
+
+            let levelLinks = []
+
+            document.querySelectorAll("a").forEach(link => {
+                let levelId = link.innerText
+                if (levelId.match(levelIdRegex))
+                    levelLinks.push(levelId)
+            })
+            
+            serverEndRequest(res, JSON.stringify({
+                levels: levelLinks
+            }), "application/json")
+            return
+        }
     }
     catch(e)
     {
-        serverEndRequest(res, "err:unknown-internal")
+        serverEndRequest(res, errorCodes.unknownInternal)
         console.log("Internal server error!")
         console.log(e)
         return
