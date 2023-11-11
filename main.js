@@ -86,7 +86,7 @@ const server = http.createServer(async (req, res) => {
 
             if (!levelListTypes.includes(levelListType))
             {
-                serverEndRequest(res, )
+                serverEndRequest(res, ) // OOPS THIS IS BROKEN LOL I DIDNT TEST IT
                 return
             }
 
