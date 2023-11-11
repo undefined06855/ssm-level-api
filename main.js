@@ -13,7 +13,8 @@ const errorCodes = {
     listInvalidFetched: "err:list-id-invalid-fetched"
 }
 
-const levelIdRegex = /^\d\d\d\d-\d\d\d\d$/m
+// updated to include unlisted levels (20 numbers)
+const levelIdRegex = /^\d\d\d\d\d\d\d\d\d\d\d\d\d\d\d\d\d\d\d\d$|^\d\d\d\d-\d\d\d\d$/m
 
 const server = http.createServer(async (req, res) => {
     let url = req.url
@@ -86,7 +87,7 @@ const server = http.createServer(async (req, res) => {
 
             if (!levelListTypes.includes(levelListType))
             {
-                serverEndRequest(res, )
+                serverEndRequest(res, errorCodes.listInvalidRegex)
                 return
             }
 
